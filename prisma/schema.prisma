@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+	
+}
+
+enum SubscriptionStatus {
+  INACTIVE
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+model User {
+  id          String         @id @default(cuid())
+  clerkUserId String         @unique
+  email       String         @unique
+  firstName   String?
+  lastName    String?
+  imageUrl    String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  chats       Chat[]
+  records     Record[]
+  subscriptions Subscription[]
+}
+
+model Chat {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title         String   @default("New voice chat")
+  lastMessageAt DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  records       Record[]
+
+  @@index([userId, lastMessageAt])
+}
+
+model Record {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatId          String?
+  chat            Chat?    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  role            MessageRole @default(USER)
+  audioUrl        String?
+  transcript      String?
+  durationSeconds Int?
+  isFreeTier      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([chatId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  status               SubscriptionStatus @default(INACTIVE)
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([userId, status])
+}
