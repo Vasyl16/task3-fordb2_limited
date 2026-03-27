@@ -164,20 +164,24 @@ export function VoiceChatComposer({
       return;
     }
 
+    const blobToSend = audioBlob;
+    const mimeTypeToSend = audioMimeType;
     setIsUploading(true);
     setError(null);
-    const localAudioUrl = URL.createObjectURL(audioBlob);
+    const localAudioUrl = URL.createObjectURL(blobToSend);
     onSendStart?.(localAudioUrl);
+    setAudioBlob(null);
+    setRecordingLabel("Sending voice note...");
 
     try {
       const formData = new FormData();
-      const fileExtension = audioMimeType.includes("ogg")
+      const fileExtension = mimeTypeToSend.includes("ogg")
         ? "ogg"
-        : audioMimeType.includes("mp4")
+        : mimeTypeToSend.includes("mp4")
           ? "m4a"
           : "webm";
-      const file = new File([audioBlob], `voice-note.${fileExtension}`, {
-        type: audioMimeType || audioBlob.type || "audio/webm",
+      const file = new File([blobToSend], `voice-note.${fileExtension}`, {
+        type: mimeTypeToSend || blobToSend.type || "audio/webm",
       });
 
       formData.append("audio", file);
@@ -219,7 +223,6 @@ export function VoiceChatComposer({
         throw new Error(payload.error ?? "Failed to transcribe the voice note.");
       }
 
-      setAudioBlob(null);
       setRecordingLabel("Voice note sent.");
 
       if (payload.mode === "guest") {
@@ -254,6 +257,11 @@ export function VoiceChatComposer({
         assistantMessage: payload.assistantMessage,
       });
     } catch (saveError) {
+      setAudioBlob(blobToSend);
+      setAudioMimeType(mimeTypeToSend);
+      setRecordingLabel(
+        `Voice note ready (${Math.max(1, Math.round(blobToSend.size / 1024))} KB)`,
+      );
       setError(
         saveError instanceof Error ? saveError.message : "Failed to process your voice note.",
       );
