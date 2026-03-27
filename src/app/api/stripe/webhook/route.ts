@@ -11,6 +11,10 @@ function toDate(unixSeconds: number | null | undefined) {
   return unixSeconds ? new Date(unixSeconds * 1000) : null;
 }
 
+function getSubscriptionCurrentPeriodEnd(subscription: Stripe.Subscription) {
+  return subscription.items.data[0]?.current_period_end;
+}
+
 async function resolveUserId(subscription: Stripe.Subscription) {
   const metadataUserId = subscription.metadata.userId;
 
@@ -80,7 +84,7 @@ export async function POST(request: Request) {
               stripeSubscriptionId: subscription.id,
               stripePriceId: subscription.items.data[0]?.price.id ?? null,
               status: subscription.status,
-              currentPeriodEnd: toDate(subscription.current_period_end),
+              currentPeriodEnd: toDate(getSubscriptionCurrentPeriodEnd(subscription)),
             });
           }
         }
@@ -99,7 +103,7 @@ export async function POST(request: Request) {
             stripeSubscriptionId: subscription.id,
             stripePriceId: subscription.items.data[0]?.price.id ?? null,
             status: subscription.status,
-            currentPeriodEnd: toDate(subscription.current_period_end),
+            currentPeriodEnd: toDate(getSubscriptionCurrentPeriodEnd(subscription)),
           });
         }
 
@@ -110,7 +114,7 @@ export async function POST(request: Request) {
 
         await markSubscriptionCanceled({
           stripeSubscriptionId: subscription.id,
-          currentPeriodEnd: toDate(subscription.current_period_end),
+          currentPeriodEnd: toDate(getSubscriptionCurrentPeriodEnd(subscription)),
         });
         break;
       }
