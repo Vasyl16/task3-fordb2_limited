@@ -12,7 +12,8 @@ export default async function Home() {
   const cookieStore = await cookies();
 
   const isSignedIn = !!userId;
-  const guestFreeCallUsed = cookieStore.get(GUEST_FREE_CALL_COOKIE)?.value === '1';
+  const guestFreeCallUsed =
+    cookieStore.get(GUEST_FREE_CALL_COOKIE)?.value === '1';
 
   return (
     <main className="relative overflow-hidden">
@@ -28,12 +29,15 @@ export default async function Home() {
 
             <h1 className="mt-6 max-w-3xl font-heading text-5xl font-semibold tracking-tight text-white sm:text-6xl">
               Speak once.
-              <span className="block text-zinc-300">See instant voice-to-text.</span>
+              <span className="block text-zinc-300">
+                See instant voice-to-text.
+              </span>
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-8 text-zinc-400 sm:text-lg">
-              Start with one free guest voice-to-text call. If you want more, sign in first, then
-              unlock unlimited usage with a Stripe subscription.
+              Start with one free guest voice-to-text call. If you want more,
+              sign in first, then unlock unlimited usage with a Stripe
+              subscription.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -69,7 +73,9 @@ export default async function Home() {
                 <div className="mb-3 inline-flex rounded-full border border-white/10 bg-white/5 p-2 text-violet-200">
                   <AudioLines className="size-4" />
                 </div>
-                <p className="text-sm font-medium text-white">1 guest call free</p>
+                <p className="text-sm font-medium text-white">
+                  1 guest call free
+                </p>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
                   Try the product before you create an account.
                 </p>
@@ -89,7 +95,9 @@ export default async function Home() {
                 <div className="mb-3 inline-flex rounded-full border border-white/10 bg-white/5 p-2 text-emerald-200">
                   <CreditCard className="size-4" />
                 </div>
-                <p className="text-sm font-medium text-white">Upgrade when ready</p>
+                <p className="text-sm font-medium text-white">
+                  Upgrade when ready
+                </p>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
                   After free usage, Stripe unlocks the full workflow.
                 </p>
@@ -97,24 +105,35 @@ export default async function Home() {
             </div>
 
             <div className="mt-10 rounded-[1.75rem] border border-white/10 bg-black/30 p-5 shadow-2xl shadow-black/20">
-              <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">How access works</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+                How access works
+              </p>
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
                 <div>
-                  <p className="text-sm font-medium text-white">01. Try instantly</p>
+                  <p className="text-sm font-medium text-white">
+                    01. Try instantly
+                  </p>
                   <p className="mt-2 text-sm leading-6 text-zinc-400">
-                    First-time visitors can record one guest voice note with no auth.
+                    First-time visitors can record one guest voice note with no
+                    auth.
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">02. Sign in to continue</p>
+                  <p className="text-sm font-medium text-white">
+                    02. Sign in to continue
+                  </p>
                   <p className="mt-2 text-sm leading-6 text-zinc-400">
-                    After the guest call, continue the experience from your own account.
+                    After the guest call, continue the experience from your own
+                    account.
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">03. Unlock unlimited</p>
+                  <p className="text-sm font-medium text-white">
+                    03. Unlock unlimited
+                  </p>
                   <p className="mt-2 text-sm leading-6 text-zinc-400">
-                    Stripe subscriptions keep voice-to-text available whenever you need it.
+                    Stripe subscriptions keep voice-to-text available whenever
+                    you need it.
                   </p>
                 </div>
               </div>
@@ -134,8 +153,8 @@ export default async function Home() {
                   Jump back into your dashboard
                 </h2>
                 <p className="mt-3 text-sm leading-7 text-zinc-400">
-                  Your full chat workspace, billing controls, and saved voice history are available
-                  inside the dashboard.
+                  Your full chat workspace, billing controls, and saved voice
+                  history are available inside the dashboard.
                 </p>
                 <Link
                   className="mt-6 inline-flex items-center gap-2 rounded-full bg-violet-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-violet-400"

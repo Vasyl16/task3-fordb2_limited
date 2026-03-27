@@ -2,9 +2,8 @@ import { NextResponse } from 'next/server';
 import { createVoiceConversationTurn } from '@/lib/db/chats';
 import { getBillingState } from '@/lib/billing';
 import { getCurrentDbUser } from '@/lib/db/users';
+import { GUEST_FREE_CALL_COOKIE, hasGuestFreeCallCookie } from '@/lib/guest-access';
 import { transcribeAudioWithOpenRouter } from '@/lib/openrouter';
-
-const GUEST_FREE_CALL_COOKIE = 'guest-voice-free-used';
 
 function resolveAudioFormat(mimeType: string, fileName: string) {
   const normalizedMime = mimeType.toLowerCase();
@@ -37,19 +36,6 @@ function resolveAudioFormat(mimeType: string, fileName: string) {
   return null;
 }
 
-function hasGuestFreeCallBeenUsed(request: Request) {
-  const cookieHeader = request.headers.get('cookie');
-
-  if (!cookieHeader) {
-    return false;
-  }
-
-  return cookieHeader
-    .split(';')
-    .map((part) => part.trim())
-    .some((part) => part === `${GUEST_FREE_CALL_COOKIE}=1`);
-}
-
 export async function POST(request: Request) {
   const formData = await request.formData();
   const chatId = formData.get('chatId');
@@ -80,7 +66,7 @@ export async function POST(request: Request) {
     });
 
     if (!dbUser) {
-      if (hasGuestFreeCallBeenUsed(request)) {
+      if (hasGuestFreeCallCookie(request.headers.get('cookie'))) {
         return NextResponse.json(
           {
             error:
@@ -108,7 +94,9 @@ export async function POST(request: Request) {
       return guestResponse;
     }
 
-    const billingState = await getBillingState(dbUser.id);
+    const billingState = await getBillingState(dbUser.id, {
+      guestFreeCallUsed: hasGuestFreeCallCookie(request.headers.get('cookie')),
+    });
 
     if (!billingState.canCreateVoiceNote) {
       return NextResponse.json(

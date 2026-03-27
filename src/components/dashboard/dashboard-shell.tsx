@@ -56,6 +56,7 @@ type DashboardShellProps = {
     freeVoiceNotesLimit: number;
     freeVoiceNotesRemaining: number;
     userVoiceNotesCount: number;
+    guestFreeCallUsed: boolean;
     subscriptionStatus: string;
   };
   userEmail: string;

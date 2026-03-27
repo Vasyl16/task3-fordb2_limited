@@ -1,8 +1,10 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { getBillingState } from "@/lib/billing";
 import { getChatById, getUserChats } from "@/lib/db/chats";
 import { getCurrentDbUser } from "@/lib/db/users";
+import { hasGuestFreeCallInCookieStore } from "@/lib/guest-access";
 
 type DashboardPageProps = {
   searchParams: Promise<{
@@ -12,6 +14,7 @@ type DashboardPageProps = {
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const resolvedSearchParams = await searchParams;
+  const cookieStore = await cookies();
   const dbUser = await getCurrentDbUser();
 
   if (!dbUser) {
@@ -19,7 +22,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
 
   const chats = await getUserChats(dbUser.id);
-  const billing = await getBillingState(dbUser.id);
+  const billing = await getBillingState(dbUser.id, {
+    guestFreeCallUsed: hasGuestFreeCallInCookieStore(cookieStore),
+  });
   const activeChatId = resolvedSearchParams.chat;
   const activeChat = activeChatId ? await getChatById(dbUser.id, activeChatId) : null;
 

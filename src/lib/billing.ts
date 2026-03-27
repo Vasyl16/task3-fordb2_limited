@@ -29,7 +29,7 @@ function mapStripeSubscriptionStatus(status: string) {
   }
 }
 
-export async function getBillingState(userId: string) {
+export async function getBillingState(userId: string, options?: { guestFreeCallUsed?: boolean }) {
   const [userVoiceNotesCount, latestSubscription] = await Promise.all([
     prisma.record.count({
       where: {
@@ -47,14 +47,19 @@ export async function getBillingState(userId: string) {
 
   const subscriptionStatus = latestSubscription?.status ?? 'INACTIVE';
   const hasActiveSubscription = ACTIVE_STATUSES.has(subscriptionStatus);
-  const freeVoiceNotesRemaining = Math.max(0, FREE_VOICE_NOTES_LIMIT - userVoiceNotesCount);
+  const effectiveVoiceNotesUsed = Math.min(
+    FREE_VOICE_NOTES_LIMIT,
+    userVoiceNotesCount + (options?.guestFreeCallUsed ? 1 : 0),
+  );
+  const freeVoiceNotesRemaining = Math.max(0, FREE_VOICE_NOTES_LIMIT - effectiveVoiceNotesUsed);
 
   return {
     hasActiveSubscription,
     canCreateVoiceNote: hasActiveSubscription || freeVoiceNotesRemaining > 0,
     freeVoiceNotesLimit: FREE_VOICE_NOTES_LIMIT,
     freeVoiceNotesRemaining,
-    userVoiceNotesCount,
+    userVoiceNotesCount: effectiveVoiceNotesUsed,
+    guestFreeCallUsed: Boolean(options?.guestFreeCallUsed),
     subscriptionStatus,
     stripeCustomerId: latestSubscription?.stripeCustomerId ?? null,
   };
